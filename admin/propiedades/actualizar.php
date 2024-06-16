@@ -1,5 +1,11 @@
 <?php 
 
+require '../../includes/funciones.php';
+$auth = isAuth();
+if(!$auth){
+    header('Location: /bienes-raices/login.php');
+}
+
 //validar que sea id valido
 $id = $_GET['id'];
 $id = filter_var($id, FILTER_VALIDATE_INT);
@@ -106,7 +112,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     }
 }
 
-require '../../includes/funciones.php';
+
 ?>
 
 <main class="contenedor seccion">

@@ -3,6 +3,12 @@
 require '../../includes/config/database.php';
 $db = conectarDB();
 
+require '../../includes/funciones.php';
+$auth = isAuth();
+if(!$auth){
+    header('Location: /bienes-raices/login.php');
+}
+
 
 //consulta para obtener vendedores
 $consulta = "SELECT * FROM vendedores";
@@ -80,7 +86,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         }
 
         //nombrar archivo
-        $nombreImagen = md5( uniqid( rand() ) . ".jpg");
+        $nombreImagen = md5( uniqid( rand(), true )) . ".jpg";
         //subir imagen a carpeta
         move_uploaded_file($imagen['tmp_file'], $carpetaImagenes . $nombreImagen);
 
@@ -100,7 +106,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         }
     }
 }
-require '../../includes/funciones.php';
+
 ?>
 
 <main class="contenedor seccion">

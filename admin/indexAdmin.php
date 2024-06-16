@@ -1,4 +1,9 @@
 <?php 
+require '../includes/funciones.php';
+$auth = isAuth();
+if(!$auth){
+    header('Location: /bienes-raices/login.php');
+}
 
 //importar conexion
 require '../includes/config/database.php';
@@ -31,9 +36,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-
-require '../includes/funciones.php';
 incluirTemplate('header');
 
 ?>

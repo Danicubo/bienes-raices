@@ -1,5 +1,13 @@
+<?php
+
+    if(!isset($_SESSION)){
+        session_start();
+    }
+    $auth = $_SESSION['login'] ?? false;
+
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +35,11 @@
                         <a href="anuncios.php">Anuncios</a>
                         <a href="blog.php">Blog</a>
                         <a href="contacto.php">Contacto</a>
-                    </nav>
+                        <?php if($auth): ?>
+                            <a href="cerrar-sesion.php">Cerrar Sesión</a>
+                        <?php endif; ?>
+                        </nav>
+                        
                 </div>
                 
             </div><!-- .barra -->

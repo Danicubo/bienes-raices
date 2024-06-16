@@ -1,9 +1,9 @@
 <?php
 
-include './includes/templates/anuncios.php';
+require __DIR__ .'/../config/database.php';
 $db = conectarDB();
 
-$query = "SELECT * FROM propiedades";
+$query = "SELECT * FROM propiedades LIMIT $limite";
 $resultado = mysqli_query($db, $query);
 
 
