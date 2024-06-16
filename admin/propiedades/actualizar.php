@@ -67,9 +67,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     if (!$vendedorId){
         $errores[] = "Debes de añadir un vendedor";
     }
-    if (!$imagen || $imagen['error']){
-        $errores[] = "Debes de añadir una imagen";
-    }
 
     //validar por tamaño
     $medida = 1000 * 100;
@@ -81,29 +78,27 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     if(empty($errores)){
 
-        /* Subida de archivos */
-        //crear carpeta
         $carpetaImagenes = '../../imagenes/';
+        if($imagen['name']) {
+            //Elimina imagen previa
+            unlink($carpetaImagenes . $propiedad['imangen'] );
+            $nombreImagen = md5( uniqid( rand() ) . ".jpg");
 
-        if(!is_dir($carpetaImagenes)){
-            mkdir($carpetaImagenes); 
+            move_uploaded_file($imagen['tmp_file'], $carpetaImagenes . $nombreImagen);
+        } else {
+            $nombreImagen = $propiedad['imagen'];
         }
 
-        //nombrar archivo
-        $nombreImagen = md5( uniqid( rand() ) . ".jpg");
-        //subir imagen a carpeta
-        move_uploaded_file($imagen['tmp_file'], $carpetaImagenes . $nombreImagen);
-
-      
         
-        $query = " INSERT INTO propiedades (titulo, precio, imagen, descripcion, habitaciones, wc, estacionamiento, creado, vendedores_id)
-        VALUES ('$titulo', '$precio', '$nombreImagen', '$descripcion', '$habitaciones', '$wc', '$estacionamiento', '$creado', '$vendedorId' )";
-    
+        $query = " UPDATE propiedades SET titulo = '$titulo', precio = $precio, imagen = '$nombreImagen', descripcion =  '$descripcion', habitaciones = $habitaciones,
+         wc = $wc, estacionamiento = $estacionamiento, vendedores_id = $vendedorId WHERE id = $id ";
+
+        echo $query;
         
         $resultado = mysqli_query($db, $query);
         var_dump($resultado);
         if($resultado){
-            header('Location: /bienes-raices/admin/indexAdmin.php?resultado=1');
+            header('Location: /bienes-raices/admin/indexAdmin.php?resultado=2');
 
         }else {
             echo "Error datos  insertados "; 
@@ -127,7 +122,7 @@ require '../../includes/funciones.php';
 
 
 
-    <form class="formulario" method="POST" action="../propiedades/crear.php" enctype="multipart/form-data">
+    <form class="formulario" method="POST" enctype="multipart/form-data">
         <fieldset>
             <legend>Información General</legend>
 
