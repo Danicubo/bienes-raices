@@ -1,6 +1,6 @@
 <?php 
 
-require '../../includes/funciones.php';
+require '../../includes/app.php';
 $auth = isAuth();
 if(!$auth){
     header('Location: /bienes-raices/login.php');
@@ -14,7 +14,6 @@ if(!$id){
     header('Location: /bienes-raices/admin');
 }
 
-require '../../includes/config/database.php';
 $db = conectarDB();
 
 //consulta obtener datos para actualizar propiedad

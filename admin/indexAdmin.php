@@ -1,12 +1,11 @@
 <?php 
-require '../includes/funciones.php';
+require '../includes/app.php';
 $auth = isAuth();
 if(!$auth){
     header('Location: /bienes-raices/login.php');
 }
 
 //importar conexion
-require '../includes/config/database.php';
 $db = conectarDB();
 
 //escribir query

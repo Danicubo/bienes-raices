@@ -1,9 +1,7 @@
 <?php 
-
-require '../../includes/config/database.php';
+require '../../includes/app.php';
 $db = conectarDB();
 
-require '../../includes/funciones.php';
 $auth = isAuth();
 if(!$auth){
     header('Location: /bienes-raices/login.php');
