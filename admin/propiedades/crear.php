@@ -1,13 +1,10 @@
 <?php 
 require '../../includes/app.php';
+use App\Propiedad;
+
+isAuth();
+
 $db = conectarDB();
-
-$auth = isAuth();
-if(!$auth){
-    header('Location: /bienes-raices/login.php');
-}
-
-
 //consulta para obtener vendedores
 $consulta = "SELECT * FROM vendedores";
 $resultado = mysqli_query($db, $consulta);
@@ -28,6 +25,10 @@ $errores = [];
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
 /* echo "<pre>". var_dump($_FILES). "</pre>"; */
+
+    $propiedad = new Propiedad($_POST);
+
+    $propiedad-> guardar();
 
     $titulo = mysqli_real_escape_string($db, $_POST['titulo'] );
     $precio = mysqli_real_escape_string($db, $_POST['precio'] );
@@ -87,12 +88,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $nombreImagen = md5( uniqid( rand(), true )) . ".jpg";
         //subir imagen a carpeta
         move_uploaded_file($imagen['tmp_file'], $carpetaImagenes . $nombreImagen);
-
-      
-        
-        $query = " INSERT INTO propiedades (titulo, precio, imagen, descripcion, habitaciones, wc, estacionamiento, creado, vendedores_id)
-        VALUES ('$titulo', '$precio', '$nombreImagen', '$descripcion', '$habitaciones', '$wc', '$estacionamiento', '$creado', '$vendedorId' )";
-    
         
         $resultado = mysqli_query($db, $query);
         var_dump($resultado);
@@ -152,7 +147,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
         <fieldset>
             <legend>Vendedor</legend>
-            <select name="vendedor">
+            <select name="vendedorId">
                 <option value="" disabled selected>-Selecciona Vendedor-</option>
                 <?php while($row = mysqli_fetch_assoc( $resultado ) ) : ?>
                     <option <?php echo $vendedorId === $row['id'] ? 'selected' : ''; ?> value="<?php echo $row['id']?>"><?php echo $row['nombre'] . " " . $row['apellido'] ?></option>
