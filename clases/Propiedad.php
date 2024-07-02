@@ -40,10 +40,19 @@ class Propiedad {
         $this -> wc = $args['wc'] ?? '';
         $this -> estacionamiento = $args['estacionamiento'] ?? '';
         $this -> creado = date('Y/m/d');
-        $this -> vendedorId = $args['vendedorId'] ?? '';
+        $this -> vendedorId = $args['vendedorId'] ?? 1;
     }
 
     public function guardar()
+    {
+        if(isset($this->id)){
+            $this->actualizar();
+        }else {
+
+        }
+    }
+
+    public function crear()
     {
         //Sanitizar datos
         $atributos = $this -> sanitizarDatos();
@@ -57,6 +66,24 @@ class Propiedad {
         $resultado = self::$db->query($query);
 
         return $resultado;
+    }
+    public function actualizar()
+    {
+        //Sanitizar datos
+        $atributos = $this -> sanitizarDatos();
+        $valores = [];
+        foreach($atributos as $key => $value){
+            $valores[] = "$key='$value'";
+        }
+        $query =  "UPDATE propiedades SET ";
+        $query .=  join(', ', $valores );
+        $query .= " WHERE id = '" . self::$db->escape_string($this->id) . "' ";
+        $query .= " LIMIT 1";
+
+        $resultado = self::$db->query($query);
+        if($resultado){
+            header('Location: /bienes-raices/admin/indexAdmin.php?resultado=2');
+        }
     }
 
     public function atributos ()
@@ -88,6 +115,13 @@ class Propiedad {
 
     public function setImagen($imagen)
     {
+        //elimina imagen previa
+        if(isset($this->id)){
+            $existeArchivo = file_exists(CARPETA_IMAGENES . $this->imagen);
+            if($existeArchivo){
+                unlink(CARPETA_IMAGENES . $this->imagen);
+            }
+        }
         if($imagen){
             $this->imagen = $imagen;
         }
@@ -124,10 +158,18 @@ class Propiedad {
 
     public static function all()
     {
-        $query = "SELECT * FROM propiedades;";
+        $query = "SELECT * FROM propiedades";
         $resultado = self::$db->consultarSql($query);
 
         return $resultado;
+    }
+    //buscar registro por id
+    public static function find($id)
+    {
+        //consulta obtener datos para actualizar propiedad
+        $query = "SELECT * FROM propiedades WHERE id=$id";
+        $resultado = self::consultarSql($query);
+        return array_shift($resultado);
     }
     public static function consultarSql($query)
     {
@@ -150,4 +192,13 @@ class Propiedad {
         }
         return $objecto;
     }
+    public function sincronizar($args = [])
+    {
+        foreach($args as $key => $value){
+            if(property_exists($this, $key) && !is_null($value)){
+                $this->$key = $value;
+            }
+        }
+    }
+    
 }
