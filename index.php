@@ -1,6 +1,5 @@
 <?php 
-    /*   */
-    require 'includes/app.php';
+    require_once 'includes/app.php';
     
     incluirTemplate('header', $inicio = true);
 ?>
@@ -95,5 +94,4 @@
     </div>
 <?php 
     incluirTemplate('footer');
-
 ?>

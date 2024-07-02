@@ -9,6 +9,8 @@ class Propiedad {
     protected static $columnas_db = ['id', 'precio', 'imagen', 'descripcion', 
     'habitaciones', 'wc', 'estacionamiento', 'creado', 'vendedorId'];
 
+    protected static $errores = [];
+
     public $id;
     public $titulo;
     public $precio;
@@ -32,7 +34,7 @@ class Propiedad {
         $this -> id = $args['id'] ?? '';
         $this -> titulo = $args['titulo'] ?? '';
         $this -> precio = $args['precio'] ?? '';
-        $this -> imagen = $args['imagen'] ?? 'imagen.jpg';
+        $this -> imagen = $args['imagen'] ?? '';
         $this -> descripcion = $args['descripcion'] ?? '';
         $this -> habitaciones = $args['habitaciones'] ?? '';
         $this -> wc = $args['wc'] ?? '';
@@ -46,9 +48,15 @@ class Propiedad {
         //Sanitizar datos
         $atributos = $this -> sanitizarDatos();
 
-        $query = " INSERT INTO propiedades (titulo, precio, imagen, descripcion, habitaciones, wc, estacionamiento, creado, vendedores_id)
-        VALUES ('$this->titulo', '$this->precio', '$this->imagen', '$this->descripcion', '$this->habitaciones', '$this->wc', '$this->estacionamiento', '$this->creado', '$this->vendedorId' )";
+        $query = " INSERT INTO propiedades ( ";
+        $query .= join(', ', array_keys($atributos));
+        $query .= " ) VALUES (' ";
+        $query .= join("', '", array_values($atributos));
+        $query .= " ') ";
+
         $resultado = self::$db->query($query);
+
+        return $resultado;
     }
 
     public function atributos ()
@@ -72,5 +80,74 @@ class Propiedad {
 
         return $sanitizado;
     }
+
+    public static function getErrores()
+    {
+        return self::$errores;
+    }
+
+    public function setImagen($imagen)
+    {
+        if($imagen){
+            $this->imagen = $imagen;
+        }
+    }
    
+    public function validar()
+    {
+        if (!$this-> titulo){
+            self::$errores[] = "Debes de añadir un título";
+        }
+        if (!$this-> precio){
+            self::$errores[] = "Debes de añadir un precio";
+        }
+        if (strlen($this-> descripcion)< 50){
+            self::$errores[] = "La descripción al menos debe de tener 50 carácteres";
+        }
+        if (!$this-> habitaciones){
+            self:: $errores[] = "Debes de añadir una habitación";
+        }
+        if (!$this-> wc){
+            self::$errores[] = "Debes de añadir un baño";
+        }
+        if (!$this-> estacionamiento){
+            self::$errores[] = "Debes de añadir un estacionamiento";
+        }
+        if (!$this-> vendedorId){
+            self::$errores[] = "Debes de añadir un vendedor";
+        }
+        if (!$this-> imagen){
+            self::$errores[] = "Debes de añadir una imagen";
+        }
+        return self::$errores;
+    }
+
+    public static function all()
+    {
+        $query = "SELECT * FROM propiedades;";
+        $resultado = self::$db->consultarSql($query);
+
+        return $resultado;
+    }
+    public static function consultarSql($query)
+    {
+        $resultado = self::$db->query($query);
+        $array = [];
+        while($registro = $resultado -> fetch_assoc()){
+            $array[] =self::crearObjeto($registro);
+        }
+        $resultado->free();
+
+        return $array;
+    }
+    public static function crearObjeto($registro)
+    {
+        $objecto = new self;
+        foreach($registro as $key => $value){
+            if(property_exists($objecto, $key )){
+                $objecto->$key = $value;
+            }
+        }
+        return $objecto;
+    }
 }

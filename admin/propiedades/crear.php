@@ -1,6 +1,7 @@
 <?php 
-require '../../includes/app.php';
+require_once '../../includes/app.php';
 use App\Propiedad;
+use  Intervention\Image\ImageManagerStatic as  Image;
 
 isAuth();
 
@@ -19,16 +20,12 @@ $estacionamiento = '';
 $vendedorId = '';
 
 /* Arreglo con mensajes errores */
-$errores = [];
+$errorres = Propiedad::getErrores();
 
 /* Despues de enviar el desayuno */
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
-/* echo "<pre>". var_dump($_FILES). "</pre>"; */
-
     $propiedad = new Propiedad($_POST);
-
-    $propiedad-> guardar();
 
     $titulo = mysqli_real_escape_string($db, $_POST['titulo'] );
     $precio = mysqli_real_escape_string($db, $_POST['precio'] );
@@ -38,64 +35,33 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $estacionamiento = mysqli_real_escape_string($db, $_POST['estacionamiento'] );
     $vendedorId = mysqli_real_escape_string($db, $_POST['vendedor'] );
     $creado = date('Y/m/d');
-
-    $imagen = $_FILES['imagen'];
-
-    if (!$titulo){
-        $errores[] = "Debes de añadir un título";
-    }
-    if (!$precio){
-        $errores[] = "Debes de añadir un precio";
-    }
-    if (strlen($descripcion)< 50){
-        $errores[] = "La descripción al menos debe de tener 50 carácteres";
-    }
-    if (!$habitaciones){
-        $errores[] = "Debes de añadir una habitación";
-    }
-    if (!$wc){
-        $errores[] = "Debes de añadir un baño";
-    }
-    if (!$estacionamiento){
-        $errores[] = "Debes de añadir un estacionamiento";
-    }
-    if (!$vendedorId){
-        $errores[] = "Debes de añadir un vendedor";
-    }
-    if (!$imagen || $imagen['error']){
-        $errores[] = "Debes de añadir una imagen";
-    }
-
-    //validar por tamaño
-    $medida = 1000 * 100;
     
-    if($imagen['size'] > $medida){
-        $errores[] = "La imagen es muy pesada";
+    //nombrar archivo
+    
+    $carpetaImagenes = '../../imagenes/';
+    if(!is_dir($carpetaImagenes)){
+        mkdir($carpetaImagenes); 
     }
-
+    $nombreImagen = md5( uniqid( rand(), true )) . ".jpg";
+  
+    if($_FILES['image']['tmp_name']){
+        $image = Image::make($_FILES['imagen']['tmp_name'])->fit(800,600);
+        $propiedad -> setImagen($nombreImagen);
+    }
+    $errores = $propiedad->validar();
+    //realiza un resize a la imagen
 
     if(empty($errores)){
-
-        /* Subida de archivos */
-        //crear carpeta
-        $carpetaImagenes = '../../imagenes/';
-
-        if(!is_dir($carpetaImagenes)){
-            mkdir($carpetaImagenes); 
+      
+        if(!is_dir(CARPETA_IMAGENES)){
+            mkdir(CARPETA_IMAGENES);
         }
-
-        //nombrar archivo
-        $nombreImagen = md5( uniqid( rand(), true )) . ".jpg";
-        //subir imagen a carpeta
-        move_uploaded_file($imagen['tmp_file'], $carpetaImagenes . $nombreImagen);
-        
-        $resultado = mysqli_query($db, $query);
-        var_dump($resultado);
+        //guardar imagen
+        $image->save(CARPETA_IMAGENES . $nombreImagen);
+        //guardar en BD
+        $resultado = $propiedad-> guardar();
         if($resultado){
             header('Location: /bienes-raices/admin/indexAdmin.php?resultado=1');
-
-        }else {
-            echo "Error datos  insertados "; 
         }
     }
 }
@@ -105,8 +71,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 <main class="contenedor seccion">
     <h1>Crear</h1>
     <a href="../indexAdmin.php">Volver</a>
-
-
     <?php foreach($errores as $error): ?>
         <div class="alerta error">
             <?php echo $error?>

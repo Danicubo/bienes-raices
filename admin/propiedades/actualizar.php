@@ -1,6 +1,6 @@
 <?php 
 
-require '../../includes/app.php';
+require_once '../../includes/app.php';
 $auth = isAuth();
 if(!$auth){
     header('Location: /bienes-raices/login.php');
