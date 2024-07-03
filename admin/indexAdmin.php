@@ -3,11 +3,14 @@ require_once '../includes/app.php';
 isAuth();
 
 use App\Propiedad;
+use App\Vendedor;
+
 //importar conexion
 $db = conectarDB();
 
 //implementar metodo para obtener propiedades
 $propiedades = Propiedad::all();
+$vendedores = Vendedor::all();
 
 $resultado = $_GET['resultado'] ?? null;
 
@@ -16,20 +19,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = filter_var($id, FILTER_VALIDATE_INT);
 
     if($id) {
-
-        $query = "SELECT imagen FROM propiedades WHERE id = $id";
-        $resultado = mysqli_query($db, $query);
-        $propiedad = mysqli_fetch_assoc($resultado);
-
-       unlink('../imagenes'. $propiedad['imagen']);
-
-
-        $query = "DELETE FROM propiedades WHERE id = $id";
-        $resultado = mysqli_query($db, $query);
-
-        if($resultado) {
-            header ('Location: /bienes-raices/admin/indexAdmin.php');
-        }
+        $propiedad = Propiedad::find($id);
+        $propiedad->eliminar();
     }
 }
 incluirTemplate('header');
