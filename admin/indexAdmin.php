@@ -5,9 +5,6 @@ isAuth();
 use App\Propiedad;
 use App\Vendedor;
 
-//importar conexion
-$db = conectarDB();
-
 //implementar metodo para obtener propiedades
 $propiedades = Propiedad::all();
 $vendedores = Vendedor::all();

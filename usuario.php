@@ -2,8 +2,6 @@
 
 require_once 'includes/app.php';
 
-$db = conectarDB();
-
 $email = "correo@correo.com";
 $password = "123456";
 //HASH PASSWORD

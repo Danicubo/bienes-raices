@@ -1,6 +1,7 @@
 <?php
 
 use App\Propiedad;
+use App\Vendedor;
 use  Intervention\Image\ImageManagerStatic as  Image;
 
 require_once '../../includes/app.php';
@@ -15,18 +16,11 @@ if(!$id){
     header('Location: /bienes-raices/admin');
 }
 
-$db = conectarDB();
 
 //consulta obtener datos para actualizar propiedad
 $propiedad = Propiedad::find($id);
-
-//consulta para obtener vendedores
-$consulta = "SELECT * FROM vendedores";
-$resultado = mysqli_query($db, $consulta);
-
-
-$titulo = $propiedad->titulo;
-
+//consulta para obtener datos de todos los vendedores
+$vendedores = Vendedor::all();
 /* Arreglo con mensajes errores */
 $errores = Propiedad::getErrores();
 
@@ -42,13 +36,19 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     //validacion subida de archivos
     $nombreImagen = md5( uniqid( rand(), true )) . ".jpg";
 
+    if($_FILES['propiedad']['tmp_image']['imagen']){
+        $image = Image::make($_FILES['propiedad']['tmp_image']['imagen'])->fit(800,600);
+        $propiedad->setImagen($nombreImagen);
+    }
+
     if(empty($errores)){
-        //almacenar img
-        $image->save(CARPETA_IMAGENES . $nombreImagen);
+        if($_FILES['propiedad']['tmp_image']['imagen']){
+            $image->save(CARPETA_IMAGENES . $nombreImagen);
+        }
         $propiedad->guardar();
     }
 }
-
+incluirTemplate('header');
 
 ?>
 
@@ -61,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         <div class="alerta error">
             <?php echo $error?>
         </div>
-    <?php endforeach?>
+    <?php endforeach;?>
 
 
 

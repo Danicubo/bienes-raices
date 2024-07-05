@@ -26,7 +26,7 @@ class ActiveRecord
 
     public function guardar()
     {
-        if(isset($this->id)){
+        if(!is_null($this->id)){
             $this->actualizar();
         }else {
             $this->crear();
@@ -36,8 +36,8 @@ class ActiveRecord
     public function crear()
     {
         //Sanitizar datos
-        $atributos = $this -> sanitizarDatos();
-        $query = " INSERT INTO" . static::$tabla . " ( ";
+        $atributos = $this->sanitizarDatos();
+        $query = " INSERT INTO " . static::$tabla . " ( ";
         $query .= join(', ', array_keys($atributos));
         $query .= " ) VALUES (' ";
         $query .= join("', '", array_values($atributos));
@@ -50,15 +50,15 @@ class ActiveRecord
     public function actualizar()
     {
         //Sanitizar datos
-        $atributos = $this -> sanitizarDatos();
+        $atributos = $this->sanitizarDatos();
         $valores = [];
         foreach($atributos as $key => $value){
             $valores[] = "$key='$value'";
         }
-        $query =  "UPDATE" . static::$tabla . "SET ";
+        $query =  "UPDATE " . static::$tabla . " SET ";
         $query .=  join(', ', $valores );
         $query .= " WHERE id = '" . self::$db->escape_string($this->id) . "' ";
-        $query .= " LIMIT 1";
+        $query .= " LIMIT 1 ";
 
         $resultado = self::$db->query($query);
         if($resultado){
@@ -68,7 +68,7 @@ class ActiveRecord
 
     public function eliminar()
     {
-        $query = "DELETE FROM" . static::$tabla . " WHERE id = " . self::$db->escape_string($this->id) . "LIMIT 1";
+        $query = "DELETE FROM " . static::$tabla . " WHERE id = " . self::$db->escape_string($this->id) . " LIMIT 1";
         $resultado = self::$db->query($query);
         if($resultado) {
             $this->borrarImagen();
@@ -78,7 +78,7 @@ class ActiveRecord
     public function atributos ()
     {
         $atributos = [];
-        foreach (self::$columnas_db as $columna){
+        foreach (static::$columnas_db as $columna){
             if ($columna === 'id') continue;
             $atributos[$columna] = $this -> $columna;
         }
@@ -99,7 +99,7 @@ class ActiveRecord
 
     public static function getErrores()
     {
-        return self::$errores;
+        return static::$errores;
     }
 
     public function setImagen($imagen)
@@ -124,37 +124,14 @@ class ActiveRecord
    
     public function validar()
     {
-        if (!$this-> titulo){
-            self::$errores[] = "Debes de añadir un título";
-        }
-        if (!$this-> precio){
-            self::$errores[] = "Debes de añadir un precio";
-        }
-        if (strlen($this-> descripcion)< 50){
-            self::$errores[] = "La descripción al menos debe de tener 50 carácteres";
-        }
-        if (!$this-> habitaciones){
-            self:: $errores[] = "Debes de añadir una habitación";
-        }
-        if (!$this-> wc){
-            self::$errores[] = "Debes de añadir un baño";
-        }
-        if (!$this-> estacionamiento){
-            self::$errores[] = "Debes de añadir un estacionamiento";
-        }
-        if (!$this-> vendedorId){
-            self::$errores[] = "Debes de añadir un vendedor";
-        }
-        if (!$this-> imagen){
-            self::$errores[] = "Debes de añadir una imagen";
-        }
-        return self::$errores;
+        static::$errores = [];
+        return static::$errores;
     }
 
     public static function all()
     {
         $query = "SELECT * FROM " .  static::$tabla;
-        $resultado = self::$db->consultarSql($query);
+        $resultado = self::consultarSql($query);
 
         return $resultado;
     }
@@ -162,7 +139,7 @@ class ActiveRecord
     public static function find($id)
     {
         //consulta obtener datos para actualizar propiedad
-        $query = "SELECT * FROM". static::$tabla . " WHERE id=$id";
+        $query = "SELECT * FROM ". static::$tabla . " WHERE id=$id ";
         $resultado = self::consultarSql($query);
         return array_shift($resultado);
     }
@@ -170,8 +147,8 @@ class ActiveRecord
     {
         $resultado = self::$db->query($query);
         $array = [];
-        while($registro = $resultado -> fetch_assoc()){
-            $array[] =self::crearObjeto($registro);
+        while($registro = $resultado->fetch_assoc()){
+            $array[] =static::crearObjeto($registro);
         }
         $resultado->free();
 
