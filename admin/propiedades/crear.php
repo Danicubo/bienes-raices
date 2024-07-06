@@ -30,6 +30,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $nombreImagen = md5( uniqid( rand(), true )) . ".jpg";
   
     if($_FILES['image']['tmp_name']){
+        debugear($image);
         $image = Image::make($_FILES['propiedad']['tmp_name']['image'])->fit(800,600);
         $propiedad -> setImagen($nombreImagen);
     }
@@ -44,23 +45,26 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         //guardar imagen
         $image->save(CARPETA_IMAGENES . $nombreImagen);
         //guardar en BD
-        $resultado = $propiedad-> guardar();
+        $resultado = $propiedad->guardar();
         if($resultado){
             header('Location: /bienes-raices/admin/indexAdmin.php?resultado=1');
         }
     }
 }
-
+incluirTemplate('header');
 ?>
 
 <main class="contenedor seccion">
     <h1>Crear</h1>
     <a href="../indexAdmin.php">Volver</a>
-    <?php foreach($errores as $error): ?>
-        <div class="alerta error">
-            <?php echo $error?>
-        </div>
-    <?php endforeach?>
+    <?php 
+        if(!empty($errores)){
+            foreach($errores as $error){ ?>
+                <div class="alerta error">
+                    <?php echo $error?>
+                </div>
+            <?php } ?>
+        <?php } ?>
 
 
 

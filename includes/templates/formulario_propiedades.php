@@ -14,7 +14,7 @@
                 <?php } ?>
 
             <label for="descripcion">Descripción:</label>
-            <textarea id="descripcion" name="propiedad[descripcion]"><?php echo s($propiedad->descripcion); ?>"</textarea>
+            <textarea id="descripcion" name="propiedad[descripcion]"><?php echo s($propiedad->descripcion); ?></textarea>
         </fieldset>
 
         <fieldset>
